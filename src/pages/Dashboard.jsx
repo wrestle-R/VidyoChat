@@ -34,69 +34,61 @@ const Dashboard = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
       
-      <div className="relative z-10 pt-32 sm:pt-40 lg:pt-64 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+      <div className="relative z-10 pt-32 sm:pt-40 lg:pt-48 px-4 sm:px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-2 max-w-5xl mx-auto">
           <SpotlightCard
-            className="w-full h-64 sm:h-80 group"
-            onClick={handlePrivateChat}
-            spotlightColor="rgba(59, 130, 246, 0.15)"
-          >
-            <div className="w-12 h-12 sm:w-16 sm:h-16 mb-6 text-white/90 group-hover:text-blue-400 transition-colors duration-300">
-              <MessageCircle size={48} strokeWidth={1.5} className="sm:w-16 sm:h-16" />
-            </div>
-            <h3 className="text-xl sm:text-2xl font-light text-white mb-4 tracking-wider group-hover:text-blue-100 transition-colors">
-              PRIVATE CHAT
-            </h3>
-            <p className="text-gray-400 text-center text-sm sm:text-base leading-relaxed group-hover:text-gray-300 transition-colors">
-              Start a secure one-on-one conversation with end-to-end encryption
-            </p>
-            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-blue-400/50 transition-colors text-white">
-              START CHAT
-            </div>
-          </SpotlightCard>
-          
-          <SpotlightCard
-            className="w-full h-64 sm:h-80 group"
+            className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
             onClick={handleCreateRoom}
             spotlightColor="rgba(34, 197, 94, 0.15)"
           >
-            <div className="w-12 h-12 sm:w-16 sm:h-16 mb-6 text-white/90 group-hover:text-green-400 transition-colors duration-300">
-              <Plus size={48} strokeWidth={1.5} className="sm:w-16 sm:h-16" />
+            <div className="flex flex-col items-center flex-1 justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 mb-8 text-white/80 group-hover:text-green-400 transition-all duration-500 group-hover:scale-110">
+                <Plus size={80} strokeWidth={1.2} className="sm:w-24 sm:h-24" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-light text-white mb-6 tracking-[0.2em] group-hover:text-green-100 transition-colors">
+                CREATE ROOM
+              </h3>
+              <p className="text-gray-400 text-center text-base sm:text-lg leading-relaxed group-hover:text-gray-300 transition-colors max-w-xs">
+                Start a new video room and invite others to join your call
+              </p>
             </div>
-            <h3 className="text-xl sm:text-2xl font-light text-white mb-4 tracking-wider group-hover:text-green-100 transition-colors">
-              CREATE ROOM
-            </h3>
-            <p className="text-gray-400 text-center text-sm sm:text-base leading-relaxed group-hover:text-gray-300 transition-colors">
-              Start a new video room and invite others to join your call
-            </p>
-            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-green-400/50 transition-colors text-white">
-              CREATE ROOM
+            <div className="w-full max-w-xs">
+              <div className="w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] group-hover:border-green-400/50 group-hover:bg-green-400/5 transition-all duration-300 text-white text-center font-light">
+                CREATE ROOM
+              </div>
             </div>
           </SpotlightCard>
           
           <SpotlightCard
-            className="w-full h-64 sm:h-80 group md:col-span-2 lg:col-span-1"
+            className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
             onClick={() => roomCode.trim() && handleJoinRoom()}
             spotlightColor="rgba(168, 85, 247, 0.15)"
           >
-            <div className="w-12 h-12 sm:w-16 sm:h-16 mb-6 text-white/90 group-hover:text-purple-400 transition-colors duration-300">
-              <LogIn size={48} strokeWidth={1.5} className="sm:w-16 sm:h-16" />
+            <div className="flex flex-col items-center flex-1 justify-center">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 mb-8 text-white/80 group-hover:text-purple-400 transition-all duration-500 group-hover:scale-110">
+                <LogIn size={80} strokeWidth={1.2} className="sm:w-24 sm:h-24" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-light text-white mb-6 tracking-[0.2em] group-hover:text-purple-100 transition-colors">
+                JOIN ROOM
+              </h3>
+              <p className="text-gray-400 text-center text-base sm:text-lg leading-relaxed mb-8 group-hover:text-gray-300 transition-colors max-w-xs">
+                Enter a room code to join an existing video call
+              </p>
             </div>
-            <h3 className="text-xl sm:text-2xl font-light text-white mb-4 tracking-wider group-hover:text-purple-100 transition-colors">
-              JOIN ROOM
-            </h3>
-            <p className="text-gray-400 text-center text-sm sm:text-base leading-relaxed mb-6 group-hover:text-gray-300 transition-colors">
-              Enter a room code to join an existing video call
-            </p>
-            <input
-              type="text"
-              placeholder="ENTER ROOM CODE"
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && roomCode.trim() && handleJoinRoom()}
-              className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/5 text-white rounded-xl border border-white/20 focus:border-purple-400/50 focus:outline-none text-center tracking-widest placeholder:text-gray-500 font-light transition-all text-sm sm:text-base"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div className="w-full max-w-xs space-y-6">
+              <input
+                type="text"
+                placeholder="ENTER ROOM CODE"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && roomCode.trim() && handleJoinRoom()}
+                className="w-full px-6 py-4 bg-white/5 text-white rounded-2xl border border-white/20 focus:border-purple-400/50 focus:outline-none focus:bg-white/10 text-center tracking-[0.15em] placeholder:text-gray-500 font-light transition-all text-base sm:text-lg backdrop-blur-sm"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] group-hover:border-purple-400/50 group-hover:bg-purple-400/5 transition-all duration-300 text-white text-center font-light">
+                JOIN ROOM
+              </div>
+            </div>
           </SpotlightCard>
         </div>
       </div>
