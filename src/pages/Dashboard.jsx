@@ -37,7 +37,7 @@ const Dashboard = () => {
       <div className="relative z-10 pt-32 sm:pt-40 lg:pt-64 px-4 sm:px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
           <SpotlightCard
-            className="w-full h-80 group"
+            className="w-full h-64 sm:h-80 group"
             onClick={handlePrivateChat}
             spotlightColor="rgba(59, 130, 246, 0.15)"
           >
@@ -50,13 +50,13 @@ const Dashboard = () => {
             <p className="text-gray-400 text-center text-sm sm:text-base leading-relaxed group-hover:text-gray-300 transition-colors">
               Start a secure one-on-one conversation with end-to-end encryption
             </p>
-            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-blue-400/50 transition-colors">
+            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-blue-400/50 transition-colors text-white">
               START CHAT
             </div>
           </SpotlightCard>
           
           <SpotlightCard
-            className="w-full h-80 group"
+            className="w-full h-64 sm:h-80 group"
             onClick={handleCreateRoom}
             spotlightColor="rgba(34, 197, 94, 0.15)"
           >
@@ -69,13 +69,13 @@ const Dashboard = () => {
             <p className="text-gray-400 text-center text-sm sm:text-base leading-relaxed group-hover:text-gray-300 transition-colors">
               Start a new video room and invite others to join your call
             </p>
-            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-green-400/50 transition-colors">
+            <div className="mt-6 px-4 sm:px-6 py-2 border border-white/20 rounded-full text-xs sm:text-sm tracking-wider group-hover:border-green-400/50 transition-colors text-white">
               CREATE ROOM
             </div>
           </SpotlightCard>
           
           <SpotlightCard
-            className="w-full h-80 group md:col-span-2 lg:col-span-1"
+            className="w-full h-64 sm:h-80 group md:col-span-2 lg:col-span-1"
             onClick={() => roomCode.trim() && handleJoinRoom()}
             spotlightColor="rgba(168, 85, 247, 0.15)"
           >

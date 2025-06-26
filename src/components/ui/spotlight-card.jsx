@@ -25,14 +25,8 @@ const SpotlightCard = ({
   };
 
   return (
-    <div
-      ref={divRef}
-      onMouseMove={handleMouseMove}
-      onClick={onClick}
-      className={`spotlight-card relative overflow-hidden rounded-[25px] flex flex-col items-center justify-center p-6 sm:p-8 transition-colors duration-300 cursor-pointer ${className}`}
-      {...props}
-    >
-      <style jsx>{`
+    <>
+      <style>{`
         .spotlight-card {
           --card-bg: hsl(0, 0%, 8%);
           --card-border: hsl(0, 0%, 15%);
@@ -68,10 +62,18 @@ const SpotlightCard = ({
           z-index: 1;
         }
       `}</style>
-      {children}
-    </div>
+      
+      <div
+        ref={divRef}
+        onMouseMove={handleMouseMove}
+        onClick={onClick}
+        className={`spotlight-card relative overflow-hidden rounded-[25px] flex flex-col items-center justify-center p-6 sm:p-8 transition-colors duration-300 cursor-pointer ${className}`}
+        {...props}
+      >
+        {children}
+      </div>
+    </>
   );
 };
 
 export default SpotlightCard;
-        
