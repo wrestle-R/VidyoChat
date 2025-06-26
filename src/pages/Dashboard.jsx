@@ -1,21 +1,190 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MessageCircle, Plus, LogIn } from 'lucide-react'
+import { MessageCircle, Plus, LogIn, User, LogOut } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SpotlightCard from '../components/ui/spotlight-card'
 
+// Import Firebase auth from config
+import { auth, googleProvider } from '../config/firebase.config'
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 const Dashboard = () => {
   const [roomCode, setRoomCode] = useState('')
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [connectionStatus, setConnectionStatus] = useState('checking')
   const navigate = useNavigate()
 
-  const handleCreateRoom = () => {
-    const newRoomCode = Math.random().toString(36).substring(2, 8).toUpperCase()
-    navigate(`/room/${newRoomCode}`)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user)
+    })
+    return () => unsubscribe()
+  }, [])
+
+  // Check backend connectivity on component mount
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (response.ok) {
+          const data = await response.json()
+          setConnectionStatus('connected')
+          console.log('Backend connection successful:', data)
+        } else {
+          setConnectionStatus('error')
+          setError('Backend server is not responding properly')
+        }
+      } catch (error) {
+        console.error('Backend connection failed:', error)
+        setConnectionStatus('error')
+        setError(`Cannot connect to backend server at ${API_BASE_URL}`)
+      }
+    }
+
+    checkBackendConnection()
+  }, [])
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const result = await signInWithPopup(auth, googleProvider)
+      setUser(result.user)
+    } catch (error) {
+      console.error('Sign in error:', error)
+      setError('Failed to sign in with Google')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleJoinRoom = () => {
-    if (roomCode.trim()) {
-      navigate(`/room/${roomCode.toUpperCase()}`)
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth)
+      setUser(null)
+    } catch (error) {
+      console.error('Sign out error:', error)
+    }
+  }
+
+  const handleCreateRoom = async () => {
+    if (!user) {
+      setError('Please sign in to create a room')
+      return
+    }
+
+    if (connectionStatus !== 'connected') {
+      setError('Backend server is not available. Please try again later.')
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError('')
+      
+      console.log('Creating room for user:', { name: user.displayName, email: user.email })
+      
+      const response = await fetch(`${API_BASE_URL}/api/create-room`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userName: user.displayName || user.email || 'Anonymous User',
+          userEmail: user.email || ''
+        })
+      })
+
+      console.log('Create room response status:', response.status)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Create room response data:', data)
+
+      if (data.success && data.joinUrl) {
+        // Show room code to user before opening
+        alert(`Room created successfully!\n\nRoom Code: ${data.roomId}\n\nShare this code with others to join your room.`)
+        // Open Digital Samba room in new tab
+        window.open(data.joinUrl, '_blank', 'noopener,noreferrer')
+      } else {
+        setError(data.error || data.message || 'Failed to create room - no join URL received')
+      }
+    } catch (error) {
+      console.error('Create room error:', error)
+      setError(`Failed to create room: ${error.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleJoinRoom = async () => {
+    if (!user) {
+      setError('Please sign in to join a room')
+      return
+    }
+
+    if (!roomCode.trim()) {
+      setError('Please enter a room code')
+      return
+    }
+
+    if (connectionStatus !== 'connected') {
+      setError('Backend server is not available. Please try again later.')
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError('')
+      
+      console.log('Joining room:', roomCode.trim(), 'for user:', { name: user.displayName, email: user.email })
+      
+      const response = await fetch(`${API_BASE_URL}/api/join-room`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          roomId: roomCode.trim(),
+          userName: user.displayName || user.email || 'Anonymous User',
+          userEmail: user.email || ''
+        })
+      })
+
+      console.log('Join room response status:', response.status)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Join room response data:', data)
+
+      if (data.success && data.joinUrl) {
+        // Open Digital Samba room in new tab
+        window.open(data.joinUrl, '_blank', 'noopener,noreferrer')
+        setRoomCode('') // Clear room code after successful join
+      } else {
+        setError(data.error || data.message || 'Failed to join room - no join URL received')
+      }
+    } catch (error) {
+      console.error('Join room error:', error)
+      setError(`Failed to join room: ${error.message}`)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -35,6 +204,34 @@ const Dashboard = () => {
       </div>
       
       <div className="relative z-10 pt-32 sm:pt-40 lg:pt-48 px-4 sm:px-6 max-w-7xl mx-auto">
+
+        {/* Connection Status Indicator */}
+        {connectionStatus === 'checking' && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl">
+            <p className="text-yellow-400 text-center">Checking backend connection...</p>
+          </div>
+        )}
+
+        {connectionStatus === 'error' && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+            <p className="text-red-400 text-center">⚠️ Backend connection failed</p>
+            <p className="text-red-300 text-center text-sm mt-1">Server: {API_BASE_URL}</p>
+          </div>
+        )}
+
+        {connectionStatus === 'connected' && !error && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
+            <p className="text-green-400 text-center">✅ Connected to backend server</p>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="max-w-md mx-auto mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
+            <p className="text-red-400 text-center">{error}</p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-2 max-w-5xl mx-auto">
           <SpotlightCard
             className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
@@ -49,19 +246,23 @@ const Dashboard = () => {
                 CREATE ROOM
               </h3>
               <p className="text-gray-400 text-center text-base sm:text-lg leading-relaxed group-hover:text-gray-300 transition-colors max-w-xs">
-                Start a new video room and invite others to join your call
+                {user ? 'Start a new video room and invite others to join your call' : 'Sign in to create a video room'}
               </p>
             </div>
             <div className="w-full max-w-xs">
-              <div className="w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] group-hover:border-green-400/50 group-hover:bg-green-400/5 transition-all duration-300 text-white text-center font-light">
-                CREATE ROOM
+              <div className={`w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] transition-all duration-300 text-white text-center font-light ${
+                user && !loading && connectionStatus === 'connected'
+                  ? 'group-hover:border-green-400/50 group-hover:bg-green-400/5 cursor-pointer' 
+                  : 'opacity-50 cursor-not-allowed'
+              }`}>
+                {loading ? 'CREATING...' : 'CREATE ROOM'}
               </div>
             </div>
           </SpotlightCard>
           
           <SpotlightCard
             className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
-            onClick={() => roomCode.trim() && handleJoinRoom()}
+            onClick={() => user && roomCode.trim() && !loading && connectionStatus === 'connected' && handleJoinRoom()}
             spotlightColor="rgba(168, 85, 247, 0.15)"
           >
             <div className="flex flex-col items-center flex-1 justify-center">
@@ -72,7 +273,7 @@ const Dashboard = () => {
                 JOIN ROOM
               </h3>
               <p className="text-gray-400 text-center text-base sm:text-lg leading-relaxed mb-8 group-hover:text-gray-300 transition-colors max-w-xs">
-                Enter a room code to join an existing video call
+                {user ? 'Enter a room code to join an existing video call' : 'Sign in to join a video room'}
               </p>
             </div>
             <div className="w-full max-w-xs space-y-6">
@@ -81,12 +282,17 @@ const Dashboard = () => {
                 placeholder="ENTER ROOM CODE"
                 value={roomCode}
                 onChange={(e) => setRoomCode(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && roomCode.trim() && handleJoinRoom()}
-                className="w-full px-6 py-4 bg-white/5 text-white rounded-2xl border border-white/20 focus:border-purple-400/50 focus:outline-none focus:bg-white/10 text-center tracking-[0.15em] placeholder:text-gray-500 font-light transition-all text-base sm:text-lg backdrop-blur-sm"
+                onKeyPress={(e) => e.key === 'Enter' && user && roomCode.trim() && !loading && connectionStatus === 'connected' && handleJoinRoom()}
+                disabled={!user || loading || connectionStatus !== 'connected'}
+                className="w-full px-6 py-4 bg-white/5 text-white rounded-2xl border border-white/20 focus:border-purple-400/50 focus:outline-none focus:bg-white/10 text-center tracking-[0.15em] placeholder:text-gray-500 font-light transition-all text-base sm:text-lg backdrop-blur-sm disabled:opacity-50"
                 onClick={(e) => e.stopPropagation()}
               />
-              <div className="w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] group-hover:border-purple-400/50 group-hover:bg-purple-400/5 transition-all duration-300 text-white text-center font-light">
-                JOIN ROOM
+              <div className={`w-full px-8 py-4 border border-white/20 rounded-2xl text-sm sm:text-base tracking-[0.15em] transition-all duration-300 text-white text-center font-light ${
+                user && roomCode.trim() && !loading && connectionStatus === 'connected'
+                  ? 'group-hover:border-purple-400/50 group-hover:bg-purple-400/5 cursor-pointer'
+                  : 'opacity-50 cursor-not-allowed'
+              }`}>
+                {loading ? 'JOINING...' : 'JOIN ROOM'}
               </div>
             </div>
           </SpotlightCard>
