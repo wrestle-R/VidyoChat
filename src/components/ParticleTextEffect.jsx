@@ -139,6 +139,7 @@ export default function ParticleTextEffect({ words = DEFAULT_WORDS }) {
   const particlesRef = useRef([])
   const frameCountRef = useRef(0)
   const wordIndexRef = useRef(0)
+  const wordStartFrameRef = useRef(0) // Track when current word started
   const mouseRef = useRef({ x: 0, y: 0, isPressed: false, isRightClick: false })
 
   const pixelSteps = 6
@@ -174,9 +175,26 @@ export default function ParticleTextEffect({ words = DEFAULT_WORDS }) {
     offscreenCanvas.height = canvas.height
     const offscreenCtx = offscreenCanvas.getContext("2d")
 
+    // Responsive font size based on viewport - increased scaling
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const minDimension = Math.min(viewportWidth, viewportHeight)
+    
+    // Scale font size - increased by ~20-30% across all breakpoints
+    let fontSizeVw
+    if (viewportWidth < 640) { // mobile
+      fontSizeVw = Math.max(minDimension * 0.16, 100) // 16% of min dimension, minimum 100px
+    } else if (viewportWidth < 1024) { // tablet
+      fontSizeVw = Math.max(minDimension * 0.18, 150) // 18% of min dimension, minimum 150px
+    } else { // desktop
+      fontSizeVw = Math.max(minDimension * 0.20, 220) // 20% of min dimension, minimum 220px
+    }
+    
+    const fontSize = `bold ${Math.floor(fontSizeVw)}px Arial`
+
     // Draw text
     offscreenCtx.fillStyle = "white"
-    offscreenCtx.font = "bold 220px Arial"
+    offscreenCtx.font = fontSize
     offscreenCtx.textAlign = "center"
     offscreenCtx.textBaseline = "middle"
     offscreenCtx.fillText(word, canvas.width / 2, canvas.height / 2)
@@ -301,8 +319,20 @@ export default function ParticleTextEffect({ words = DEFAULT_WORDS }) {
 
     // Auto-advance words
     frameCountRef.current++
-    if (frameCountRef.current % 300 === 0) {
+    const framesSinceWordStart = frameCountRef.current - wordStartFrameRef.current
+
+    let interval
+    if (wordIndexRef.current === 0) {
+      interval = 300 // 5 seconds for first word
+    } else if (wordIndexRef.current === 2) { // Last word is index 2 (3rd word)
+      interval = 400 // ~6.7 seconds for last word
+    } else {
+      interval = 180 // 3 seconds for middle word (index 1)
+    }
+
+    if (framesSinceWordStart >= interval) {
       wordIndexRef.current = (wordIndexRef.current + 1) % words.length
+      wordStartFrameRef.current = frameCountRef.current // Reset word start time
       nextWord(words[wordIndexRef.current], canvas)
     }
 
@@ -321,6 +351,11 @@ export default function ParticleTextEffect({ words = DEFAULT_WORDS }) {
 
     updateCanvasSize()
     window.addEventListener('resize', updateCanvasSize)
+
+    // Initialize counters
+    frameCountRef.current = 0
+    wordStartFrameRef.current = 0
+    wordIndexRef.current = 0
 
     // Initialize with first word
     if (words && words.length > 0) {
