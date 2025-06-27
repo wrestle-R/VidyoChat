@@ -8,7 +8,7 @@ import SpotlightCard from '../components/ui/spotlight-card'
 import { auth, googleProvider } from '../config/firebase.config'
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE_URL = import.meta.env.VITE_API_URL
 
 const Dashboard = () => {
   const [roomCode, setRoomCode] = useState('')
