@@ -45,3 +45,5 @@ vidyo/
     └── server.js
 ```
 
+**Special Thanks**  
+A big thank you to [Romeiro Fernandes](https://github.com/romeirofernandes) for helping me deploy the serverless function using Cloudflare
