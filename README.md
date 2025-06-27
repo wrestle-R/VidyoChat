@@ -24,7 +24,7 @@ A modern video calling application built with React and powered by Digital Samba
 - **Cloudflare Workers** - Serverless backend
 - **Digital Samba API** - Video conferencing platform
 - **JWT** - Token authentication
-- **Express** - as an alternate backedn for testing
+- **Express** - as an alternate backend for testing
 
 ## Project Structure
 
