@@ -47,7 +47,7 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Backend connection failed:', error)
         setConnectionStatus('error')
-        setError(`Cannot connect to backend server at ${API_BASE_URL}`)
+        setError(`Cannot connect to server`)
       }
     }
 
@@ -205,25 +205,18 @@ const Dashboard = () => {
       
       <div className="relative z-10 pt-32 sm:pt-40 lg:pt-48 px-4 sm:px-6 max-w-7xl mx-auto">
 
-        {/* Connection Status Indicator */}
-        {connectionStatus === 'checking' && (
-          <div className="max-w-md mx-auto mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl">
-            <p className="text-yellow-400 text-center">Checking backend connection...</p>
-          </div>
-        )}
-
-        {connectionStatus === 'error' && (
-          <div className="max-w-md mx-auto mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl">
-            <p className="text-red-400 text-center">⚠️ Backend connection failed</p>
-            <p className="text-red-300 text-center text-sm mt-1">Server: {API_BASE_URL}</p>
-          </div>
-        )}
-
-        {connectionStatus === 'connected' && !error && (
-          <div className="max-w-md mx-auto mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl">
-            <p className="text-green-400 text-center">✅ Connected to backend server</p>
-          </div>
-        )}
+        {/* Subtle Connection Indicator */}
+        <div className="fixed top-24 right-6 z-50">
+          {connectionStatus === 'connected' && (
+            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+          )}
+          {connectionStatus === 'error' && (
+            <div className="w-3 h-3 bg-red-400 rounded-full animate-ping"></div>
+          )}
+          {connectionStatus === 'checking' && (
+            <div className="w-3 h-3 bg-yellow-400 rounded-full animate-spin"></div>
+          )}
+        </div>
 
         {/* Error Message */}
         {error && (
@@ -234,7 +227,7 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 lg:gap-2 max-w-5xl mx-auto">
           <SpotlightCard
-            className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
+            className="w-full h-[28rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
             onClick={handleCreateRoom}
             spotlightColor="rgba(34, 197, 94, 0.15)"
           >
@@ -261,7 +254,7 @@ const Dashboard = () => {
           </SpotlightCard>
           
           <SpotlightCard
-            className="w-full h-[32rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
+            className="w-full h-[28rem] sm:h-[32rem] group scale-75 flex flex-col items-center justify-between p-8 sm:p-10"
             onClick={() => user && roomCode.trim() && !loading && connectionStatus === 'connected' && handleJoinRoom()}
             spotlightColor="rgba(168, 85, 247, 0.15)"
           >
